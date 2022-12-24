@@ -3,7 +3,7 @@ from config import bot, dp
 
 
 # DRY - Don't Repeat Yourself
-# @dp.message_handler()
+#dp.message_handler()
 async def echo(message: types.Message):
     if message.chat.type != "private":
         bad_words = ['java', 'html', 'дурак', 'чокун']
