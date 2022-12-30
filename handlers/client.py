@@ -1,15 +1,18 @@
 from aiogram import types, Dispatcher
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from config import bot, dp
-from keyboards.client_kb import start_markup
+from config import bot
 from database.bot_db import sql_command_random
+from keyboards.client_kb import start_markup
+from parser1.news import parser
 
 
 async def get_random_user(message: types.Message):
     await sql_command_random(message)
 
 
+
 #dp.message_handler(commands=['start', 'help'])
+
 async def start_handler(message: types.Message):
     await bot.send_message(chat_id=message.from_user.id,
                            text=f"Салам хозяин {message.from_user.first_name}",
@@ -50,12 +53,20 @@ async def quiz_1(message: types.Message):
     )
 
 
-
+async def get_news(message: types.Message):
+    news = parser()
+    for i in news:
+        await message.answer(
+            f"{i['link']}\n"
+            f"{i['title']}\n"
+            f"{i['price']} грн"
+        )
 
 
 def register_handlers_client(dp: Dispatcher):
+    dp.register_message_handler(get_news, commands=['news'])
     dp.register_message_handler(get_random_user, commands=['get'])
     dp.register_message_handler(start_handler, commands=['start', 'help'])
-    dp.register_message_handler(quiz_1, commands=['quiz'])
-  #  dp.register_message_handler(info_handler, commands=['info'])
+    #dp.register_message_handler(quiz_1, commands=['quiz'])
+    #dp.register_message_handler(info_handler, commands=['info'])
 
