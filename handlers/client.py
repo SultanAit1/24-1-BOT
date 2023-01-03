@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from config import bot
 from database.bot_db import sql_command_random
 from keyboards.client_kb import start_markup
-from parser1.news import parser
+from parser1.news import ParserNews
 
 
 async def get_random_user(message: types.Message):
@@ -54,7 +54,7 @@ async def quiz_1(message: types.Message):
 
 
 async def get_news(message: types.Message):
-    news = parser()
+    news = ParserNews.parser()
     for i in news:
         await message.answer(
             f"{i['link']}\n"
