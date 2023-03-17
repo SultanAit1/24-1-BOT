@@ -1,72 +1,60 @@
+
 from aiogram import types, Dispatcher
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from config import bot
-from database.bot_db import sql_command_random
-from keyboards.client_kb import start_markup
-from parser1.news import ParserNews
-
-
-async def get_random_user(message: types.Message):
-    await sql_command_random(message)
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from config import bot, dp
+from keyboards.client_kb import start_markup, main_markup, url_markup
 
 
 
-#dp.message_handler(commands=['start', 'help'])
-
+@dp.message_handler(commands=['start'])
 async def start_handler(message: types.Message):
-    await bot.send_message(chat_id=message.from_user.id,
-                           text=f"Салам хозяин {message.from_user.first_name}",
+     await bot.send_message(chat_id=message.from_user.id,
+                           text="Вступительная информацию",
                            reply_markup=start_markup)
-    # await message.answer("This is an answer method")
-    # await message.reply("This is a reply method")
 
 
-#async def info_handler(message: types.Message):
-    await message.reply("Сам рабирайся!")
+@dp.callback_query_handler(text="one")
+async def one(callback: CallbackQuery):
+    one = InlineKeyboardButton("one", callback_data="one")
+    await bot.edit_message_text("Вступительная инфа",chat_id=callback.message.chat.id,message_id=callback.message.message_id,reply_markup=main_markup)
 
 
-#@dp.message_handler(commands=['quiz'])
-async def quiz_1(message: types.Message):
-    markup = InlineKeyboardMarkup()
-    button_call_1 = InlineKeyboardButton("NEXT 1", callback_data="button_call_1")
-    markup.add(button_call_1)
-
-    question = "Центральный город КР"
-    answers = [
-        'Ош',
-        'Бишкек',
-        'Каракол',
-        'Москва',
-        'Токмок',
-    ]
-
-    await bot.send_poll(
-        chat_id=message.from_user.id,
-        question=question,
-        options=answers,
-        is_anonymous=False,
-        type='quiz',
-        correct_option_id=1,
-        explanation="Стыдно не знать",
-        open_period=5,
-        reply_markup=markup
-    )
 
 
-async def get_news(message: types.Message):
-    news = ParserNews.parser()
-    for i in news:
-        await message.answer(
-            f"{i['link']}\n"
-            f"{i['title']}\n"
-            f"{i['price']} грн"
-        )
+@dp.callback_query_handler(text="two")
+async def two(callback: CallbackQuery):
+    two = InlineKeyboardButton('two', callback_data='two')
+    await bot.edit_message_text(chat_id=callback.message.chat.id,message_id=callback.message.message_id, text="партнерство с нами ",
+                        reply_markup=main_markup   )
+
+
+@dp.callback_query_handler(text="three")
+async def three(callback: CallbackQuery):
+    await bot.edit_message_text(chat_id=callback.message.chat.id,message_id=callback.message.message_id ,text="тут наши товары",
+                          reply_markup=url_markup, )
+
+
+@dp.callback_query_handler(text="last")
+async def last(message: types.Message, ):
+    last = InlineKeyboardButton('last', callback_data='last')
+    await bot.send_message(chat_id=message.from_user.id, text="")
+
+
+@dp.callback_query_handler(text="exit_1")
+async def exit_1(callback: CallbackQuery):
+    exit_1 = InlineKeyboardButton('exit_1', callback_data="exit_1")
+    await bot.edit_message_text(chat_id=callback.message.chat.id,message_id=callback.message.message_id, text="вступительная инфа ",
+                           reply_markup=start_markup)
+
+
 
 
 def register_handlers_client(dp: Dispatcher):
-    dp.register_message_handler(get_news, commands=['news'])
-    dp.register_message_handler(get_random_user, commands=['get'])
-    dp.register_message_handler(start_handler, commands=['start', 'help'])
-    #dp.register_message_handler(quiz_1, commands=['quiz'])
-    #dp.register_message_handler(info_handler, commands=['info'])
+    dp.register_message_handler(start_handler, commands=['start'])
+    dp.callback_query_handler(one, text='one')
+    dp.callback_query_handler(two, text='two')
+    dp.callback_query_handler(three, text='three')
+    dp.callback_query_handler(last, text='last')
+    dp.callback_query_handler(exit_1, text='exit_1')
+    dp.register_edited_message_handler(one)
 

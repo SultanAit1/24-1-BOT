@@ -1,40 +1,25 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-start_markup = ReplyKeyboardMarkup(
-    resize_keyboard=True,
-    one_time_keyboard=True,
-    row_width=3
-)
+start_markup = InlineKeyboardMarkup(row_width=4)
+one = InlineKeyboardButton(text='информация о компании', callback_data="one")
+three = InlineKeyboardButton(text='Наши контакты', callback_data='three')
+two = InlineKeyboardButton(text='партнерство', callback_data='two')
+last = InlineKeyboardButton(text='Админ', callback_data='last', url="https://t.me/xmTenZenE")
+start_markup.add(one)
+start_markup.add(two)
+start_markup.add(three)
+start_markup.add(last)
 
-start_button = KeyboardButton("/start")
-info_button = KeyboardButton("/info")
-quiz_button = KeyboardButton("/quiz")
+main_markup = InlineKeyboardMarkup(row_width=1)
+exit_1 = InlineKeyboardButton(text="Вернуться в Меню", callback_data='exit_1')
+main_markup.add(exit_1)
 
-share_location = KeyboardButton("Share location", request_location=True)
-share_contact = KeyboardButton("Share contact", request_contact=True)
 
-start_markup.add(start_button, info_button, quiz_button,
-                 share_location, share_contact)
-
-cancel_button = KeyboardButton('Отменить регистрацию')
-cancel_markup = ReplyKeyboardMarkup(
-    resize_keyboard=True,
-    one_time_keyboard=True
-).add(cancel_button)
-
-backend_button = KeyboardButton('Backend')
-frontend_button = KeyboardButton('Frontend')
-ux_ui_button = KeyboardButton('UX/UI')
-android_button = KeyboardButton('Android')
-ios_button = KeyboardButton('IOS')
-courses_markup = ReplyKeyboardMarkup(
-    resize_keyboard=True,
-    one_time_keyboard=True,
-    row_width=3,
-).add(backend_button, frontend_button, ux_ui_button, android_button, ios_button)
-
-submit_markup = ReplyKeyboardMarkup(
-    resize_keyboard=True,
-    one_time_keyboard=True
-).add(KeyboardButton('ДА'), KeyboardButton('НЕТ'))
-
+url_markup = InlineKeyboardMarkup(row_width=4)
+russia = InlineKeyboardButton(text='Товары России', callback_data='russia', url='https://www.apple.com/ru/iphone/')
+kazax = InlineKeyboardButton(text='Товары Казахстана', callback_data='kazax', url="https://www.samsung.com/ru/")
+uzb = InlineKeyboardButton(text='Товары Узбекистана', callback_data='uzb',url="https://mi-shop.kg/")
+url_markup.add(russia)
+url_markup.add(kazax)
+url_markup.add(uzb)
+url_markup.add(exit_1)
