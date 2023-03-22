@@ -1,4 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.markdown import text
 
 start_markup = InlineKeyboardMarkup(row_width=4)
 one = InlineKeyboardButton(text='информация о компании', callback_data="one")
@@ -23,3 +24,9 @@ url_markup.add(russia)
 url_markup.add(kazax)
 url_markup.add(uzb)
 url_markup.add(exit_1)
+
+spam_markup= InlineKeyboardMarkup(row_width=2)
+confirm = InlineKeyboardButton(text='Подтвердить', callback_data=f'confirm,{text}')
+cancel = InlineKeyboardButton(text='Отмена', callback_data='cancel')
+spam_markup.add(cancel, confirm)
+
