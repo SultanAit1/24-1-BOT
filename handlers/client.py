@@ -19,53 +19,53 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS users
 conn.commit()
 
 
-# noinspection SqlResolve
-@dp.message_handler(content_types=['photo', 'video'])
-async def handle_all(message: types.Message):
-    media_group = []
-    for media in [message.photo[-1], message.video]:
-        media_id = media.file_id
-        media_group.append(types.InputMedia(media=media_id, caption=message.caption[6:]))
-
+# # noinspection SqlResolve
+# @dp.message_handler(content_types=['photo', 'video'])
+# async def handle_all(message: types.Message):
+#     media_group = []
+#     for media in [message.photo[-1], message.video]:
+#         media_id = media.file_id
+#         media_group.append(types.InputMedia(media=media_id, caption=message.caption[6:]))
+#
+#     try:
+#         cursor.execute("SELECT user_id FROM users")
+#         rows = cursor.fetchall()
+#         for row in rows:
+#             user_id = row[0]
+#             await bot.send_media_group(chat_id=user_id, media=media_group)
+#         await message.answer(f"Медиа-файлы успешно отправлены всем подписчикам ({len(rows)} человек).")
+#     except Exception as e:
+#         print(f"Ошибка при отправке медиа-файлов: {e}")# # noinspection SqlResolve
+@dp.message_handler(content_types=['video'])
+async def handle_video(message: types.Message):
+    # Получаем идентификатор фото
+    video_id = message.video.file_id
     try:
+        # Отправляем фото всем подписчикам
         cursor.execute("SELECT user_id FROM users")
         rows = cursor.fetchall()
         for row in rows:
             user_id = row[0]
-            await bot.send_media_group(chat_id=user_id, media=media_group)
-        await message.answer(f"Медиа-файлы успешно отправлены всем подписчикам ({len(rows)} человек).")
+            await bot.send_video(chat_id=user_id, video=video_id,caption=message.caption[6:] )
+        await message.answer(f"Видео успешно отправлено всем подписчикам ({len(rows)} человек).")
     except Exception as e:
-        print(f"Ошибка при отправке медиа-файлов: {e}")# # noinspection SqlResolve
-# @dp.message_handler(content_types=['video'])
-# async def handle_video(message: types.Message):
-#     # Получаем идентификатор фото
-#     video_id = message.video.file_id
-#     try:
-#         # Отправляем фото всем подписчикам
-#         cursor.execute("SELECT user_id FROM users")
-#         rows = cursor.fetchall()
-#         for row in rows:
-#             user_id = row[0]
-#             await bot.send_video(chat_id=user_id, video=video_id,caption=message.caption[6:] )
-#         await message.answer(f"Видео успешно отправлено всем подписчикам ({len(rows)} человек).")
-#     except Exception as e:
-#         print(f"Ошибка при отправке фото: {e}")
-#
-# # noinspection SqlResolve
-# @dp.message_handler(content_types=['photo'])
-# async def handle_photo(message: types.Message):
-#     # Получаем идентификатор фото
-#     photo_id = message.photo[-1].file_id
-#     try:
-#         # Отправляем фото всем подписчикам
-#         cursor.execute("SELECT user_id FROM users")
-#         rows = cursor.fetchall()
-#         for row in rows:
-#             user_id = row[0]
-#             await bot.send_photo(chat_id=user_id, photo=photo_id,caption=message.caption[6:] )
-#         await message.answer(f"Фото успешно отправлено всем подписчикам ({len(rows)} человек).")
-#     except Exception as e:
-#         print(f"Ошибка при отправке фото: {e}")
+        print(f"Ошибка при отправке фото: {e}")
+
+# noinspection SqlResolve
+@dp.message_handler(content_types=['photo'])
+async def handle_photo(message: types.Message):
+    # Получаем идентификатор фото
+    photo_id = message.photo[-1].file_id
+    try:
+        # Отправляем фото всем подписчикам
+        cursor.execute("SELECT user_id FROM users")
+        rows = cursor.fetchall()
+        for row in rows:
+            user_id = row[0]
+            await bot.send_photo(chat_id=user_id, photo=photo_id,caption=message.caption[6:] )
+        await message.answer(f"Фото успешно отправлено всем подписчикам ({len(rows)} человек).")
+    except Exception as e:
+        print(f"Ошибка при отправке фото: {e}")
 
 
 # noinspection SqlResolve
@@ -188,9 +188,9 @@ def register_handlers_client(dp: Dispatcher):
 
     dp.callback_query_handler(confirm_broadcast_keyboard, text_contains='confirm_broadcast')
     dp.register_message_handler(spam_commands, commands=['spam'])
-    dp.register_message_handler(handle_all, commands=['spam'])
-    # dp.register_message_handler(handle_photo, commands=['spam'])
-    # dp.register_message_handler(handle_video, commands=['spam'])
+    # dp.register_message_handler(handle_all, commands=['spam'])
+    dp.register_message_handler(handle_photo, commands=['spam'])
+    dp.register_message_handler(handle_video, commands=['spam'])
 
 
 
