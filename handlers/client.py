@@ -1,9 +1,7 @@
-import aiogram
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, ReplyKeyboardMarkup, \
-    KeyboardButton, ChatType
 
+from aiogram.types import InlineKeyboardButton, CallbackQuery
 from config import bot, dp
-from keyboards.client_kb import start_markup, main_markup, url_markup, confirm_broadcast_keyboard
+from keyboards.client_kb import start_markup, main_markup, url_markup, profil_markup
 import sqlite3
 from aiogram import Dispatcher
 from aiogram import types
@@ -19,53 +17,43 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS users
 conn.commit()
 
 
-# # noinspection SqlResolve
-# @dp.message_handler(content_types=['photo', 'video'])
-# async def handle_all(message: types.Message):
-#     media_group = []
-#     for media in [message.photo[-1], message.video]:
-#         media_id = media.file_id
-#         media_group.append(types.InputMedia(media=media_id, caption=message.caption[6:]))
-#
-#     try:
-#         cursor.execute("SELECT user_id FROM users")
-#         rows = cursor.fetchall()
-#         for row in rows:
-#             user_id = row[0]
-#             await bot.send_media_group(chat_id=user_id, media=media_group)
-#         await message.answer(f"Медиа-файлы успешно отправлены всем подписчикам ({len(rows)} человек).")
-#     except Exception as e:
-#         print(f"Ошибка при отправке медиа-файлов: {e}")# # noinspection SqlResolve
-@dp.message_handler(content_types=['video'])
-async def handle_video(message: types.Message):
-    # Получаем идентификатор фото
-    video_id = message.video.file_id
-    try:
-        # Отправляем фото всем подписчикам
-        cursor.execute("SELECT user_id FROM users")
-        rows = cursor.fetchall()
-        for row in rows:
-            user_id = row[0]
-            await bot.send_video(chat_id=user_id, video=video_id,caption=message.caption[6:] )
-        await message.answer(f"Видео успешно отправлено всем подписчикам ({len(rows)} человек).")
-    except Exception as e:
-        print(f"Ошибка при отправке фото: {e}")
 
 # noinspection SqlResolve
-@dp.message_handler(content_types=['photo'])
-async def handle_photo(message: types.Message):
-    # Получаем идентификатор фото
-    photo_id = message.photo[-1].file_id
-    try:
-        # Отправляем фото всем подписчикам
-        cursor.execute("SELECT user_id FROM users")
-        rows = cursor.fetchall()
-        for row in rows:
-            user_id = row[0]
-            await bot.send_photo(chat_id=user_id, photo=photo_id,caption=message.caption[6:] )
-        await message.answer(f"Фото успешно отправлено всем подписчикам ({len(rows)} человек).")
-    except Exception as e:
-        print(f"Ошибка при отправке фото: {e}")
+@dp.message_handler(content_types=['voice'])
+async def handle_voice(message: types.Message):
+    if message.from_user.id != 661114436:
+        return
+        voice_id = message.voice.file_id
+        try:
+            # Отправляем фото всем подписчикам
+            cursor.execute("SELECT user_id FROM users")
+            rows = cursor.fetchall()
+            for row in rows:
+                user_id = row[0]
+                await bot.send_voice(chat_id=user_id, voice=voice_id)
+                await message.answer(f"Видео успешно отправлено всем подписчикам ({len(rows)} человек).")
+        except Exception as e:
+            print(f"Ошибка при отправке видео: {e}")
+
+
+# noinspection SqlResolve
+@dp.message_handler(content_types=['video_note'])
+async def handle_note(message: types.Message):
+    if message.from_user.id != 661114436:
+        return
+        video_note_id = message.video_note.file_id
+        try:
+            # Отправляем фото всем подписчикам
+            cursor.execute("SELECT user_id FROM users")
+            rows = cursor.fetchall()
+            for row in rows:
+                user_id = row[0]
+                await bot.send_video_note(chat_id=user_id, video_note=video_note_id)
+                await message.answer(f"Видео успешно отправлено всем подписчикам ({len(rows)} человек).")
+        except Exception as e:
+            print(f"Ошибка при отправке видео: {e}")
+
+
 
 
 # noinspection SqlResolve
@@ -106,9 +94,13 @@ async def start_handler(message: types.Message):
     user_id = message.chat.id
     cursor.execute("INSERT OR REPLACE INTO users (user_id) VALUES (?)", (user_id,))
     conn.commit()
-    await bot.send_message(chat_id=message.from_user.id,
-    text="Вступительная информацию",
-    reply_markup=start_markup)
+    if message.from_user.id != 661114436:
+        await bot.send_message(chat_id=message.from_user.id,
+        text="Вступительная информацию",
+        reply_markup=start_markup)
+
+    else:
+        await bot.send_message(chat_id=message.from_user.id, text='Вступительная информацию', reply_markup=profil_markup)
 
 
 
@@ -145,33 +137,19 @@ async def exit_1(callback: CallbackQuery):
     await bot.edit_message_text(chat_id=callback.message.chat.id,message_id=callback.message.message_id, text="вступительная инфа ",
                            reply_markup=start_markup)
 
-@dp.callback_query_handler(lambda c: c.data == 'cancel')
-async def cancel(callback :CallbackQuery):
-    await bot.edit_message_text(chat_id=callback.message.chat.id,message_id=callback.message.message_id, text='Рассылка отменена')
 
+@dp.callback_query_handler(text="comand")
+async def comand(callback: CallbackQuery):
+    comand = InlineKeyboardButton('comand', callback_data='comand')
+    await bot.edit_message_text(chat_id=callback.message.chat.id,message_id=callback.message.message_id,
+                                text=" основное меню - /start;       "
+                                   '           Кружочки в тг - автоматически;     '
+                                   '                        фото с текстом - /spam;     '
+                                   '                   видео с текстом - /spam;      '
+                                   '  голосовое сообщение - автоматически.  ',
+                                reply_markup=main_markup
 
-conn = sqlite3.connect('users.db')
-cursor = conn.cursor()
-cursor.execute('''CREATE TABLE IF NOT EXISTS members (id INTEGER PRIMARY KEY)''')
-conn.commit()
-
-@dp.message_handler(content_types=["new_chat_members"])
-async def new(message: types.Message):
-    # Записываем айди пользователя в базу данных
-    user_id = message.new_chat_members[0].id
-    cursor.execute('''INSERT OR REPLACE INTO  members (id) VALUES (?)''', (user_id,))
-    conn.commit()
-
-
-# Обработка команды для вывода количества подписчиков
-@dp.message_handler(commands=["subscribers"])
-async def get(message: types.Message):
-    # Проверяем, является ли отправитель администратором группы
-    if message.from_user.id != (await bot.get_chat_member(message.chat.id, message.from_user.id)).user.id:
-        return
-    # Запрос количества подписчиков группы
-    count = await bot.get_chat_members_count(message.chat.id)
-    await message.answer(f"Subscribers count: {count}")
+    )
 
 
 def register_handlers_client(dp: Dispatcher):
@@ -181,16 +159,12 @@ def register_handlers_client(dp: Dispatcher):
     dp.callback_query_handler(three, text='three')
     dp.callback_query_handler(last, text='last')
     dp.callback_query_handler(exit_1, text='exit_1')
-    dp.callback_query_handler(cancel, text='cancel')
-    dp.register_message_handler(get, commands=['subscribers'])
-    dp.register_message_handler(new, commands=['new'])
-
-
-    dp.callback_query_handler(confirm_broadcast_keyboard, text_contains='confirm_broadcast')
+    dp.callback_query_handler(comand, text='comand')
+    dp.register_message_handler(handle_note, commands=['note'])
     dp.register_message_handler(spam_commands, commands=['spam'])
-    # dp.register_message_handler(handle_all, commands=['spam'])
-    dp.register_message_handler(handle_photo, commands=['spam'])
-    dp.register_message_handler(handle_video, commands=['spam'])
+    dp.register_message_handler(handle_voice, commands=['voice'])
+
+
 
 
 
