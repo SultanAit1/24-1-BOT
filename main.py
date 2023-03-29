@@ -13,7 +13,7 @@ client.register_handlers_client(dp)
 
 TOKEN=config('TOKEN')
 
-bot = Bot(TOKEN)
+bot = Bot('5651777397:AAFTiTgEuG46W-_Ps9WH3wj1JQD0IjB78hk')
 dp = Dispatcher(bot=bot)
 ADMIN_ID = [661114436,]
 
