@@ -5,6 +5,11 @@ from keyboards.client_kb import start_markup, main_markup, url_markup, profil_ma
 import sqlite3
 from aiogram import Dispatcher
 from aiogram import types
+import logging
+from aiogram import Bot, Dispatcher, types
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
 conn = sqlite3.connect('users.db')
@@ -89,6 +94,9 @@ async def spam_commands(message: types.Message):
     await message.answer(f"Сообщение успешно отправлено всем подписчикам ({len(rows)} человек).")
 
 
+# class UserStates(StatesGroup):
+#     waiting_for_start = State()
+
 @dp.message_handler(commands=['start'])
 async def start_handler(message: types.Message):
     user_id = message.chat.id
@@ -101,7 +109,11 @@ async def start_handler(message: types.Message):
 
     else:
         await bot.send_message(chat_id=message.from_user.id, text='Вступительная информацию', reply_markup=profil_markup)
-
+    # await UserStates.waiting_for_start.set()
+    # await state.update_data(user_id=message.from_user.id, username=message.from_user.username)
+    # # отправляем уведомление администратору
+    # await bot.send_message(661114436,
+    #                        f"Пользователь {message.from_user.id} ({message.from_user.username}) начал использовать бота")
 
 
 @dp.callback_query_handler(text="one")
@@ -151,8 +163,15 @@ async def comand(callback: CallbackQuery):
 
     )
 
+@dp.message_handler(commands=["follow"])
+async def get_subscribers_count(message: types.Message):
+    if message.from_user.id != (await bot.get_chat_member(message.chat.id, message.from_user.id)).user.id:
+        return
+    count = await bot.get_chat_members_count(message.chat.id)
+    await message.answer(f"количество подписчиков бота: {count}")
 
 def register_handlers_client(dp: Dispatcher):
+    dp.register_message_handler(get_subscribers_count, commands=['follow'])
     dp.register_message_handler(start_handler, commands=['start'])
     dp.callback_query_handler(one, text='one')
     dp.callback_query_handler(two, text='two')
