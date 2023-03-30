@@ -36,7 +36,7 @@ async def handle_voice(message: types.Message):
             for row in rows:
                 user_id = row[0]
                 await bot.send_voice(chat_id=user_id, voice=voice_id)
-                await message.answer(f"Видео успешно отправлено всем подписчикам ({len(rows)} человек).")
+                await message.answer(f" voice успешно отправлено всем подписчикам ({len(rows)} человек).")
         except Exception as e:
             print(f"Ошибка при отправке видео: {e}")
 
@@ -94,11 +94,11 @@ async def spam_commands(message: types.Message):
     await message.answer(f"Сообщение успешно отправлено всем подписчикам ({len(rows)} человек).")
 
 
-# class UserStates(StatesGroup):
-#     waiting_for_start = State()
+class UserStates(StatesGroup):
+    waiting_for_start = State()
 
 @dp.message_handler(commands=['start'])
-async def start_handler(message: types.Message):
+async def start_handler(message: types.Message, state: FSMContext):
     user_id = message.chat.id
     cursor.execute("INSERT OR REPLACE INTO users (user_id) VALUES (?)", (user_id,))
     conn.commit()
@@ -109,11 +109,11 @@ async def start_handler(message: types.Message):
 
     else:
         await bot.send_message(chat_id=message.from_user.id, text='Вступительная информацию', reply_markup=profil_markup)
-    # await UserStates.waiting_for_start.set()
-    # await state.update_data(user_id=message.from_user.id, username=message.from_user.username)
-    # # отправляем уведомление администратору
-    # await bot.send_message(661114436,
-    #                        f"Пользователь {message.from_user.id} ({message.from_user.username}) начал использовать бота")
+    await UserStates.waiting_for_start.set()
+    await state.update_data(user_id=message.from_user.id, username=message.from_user.username)
+    # отправляем уведомление администратору
+    await bot.send_message(661114436,
+                           f"Пользователь {message.from_user.id} ({message.from_user.username}) начал использовать бота")
 
 
 @dp.callback_query_handler(text="one")

@@ -6,14 +6,14 @@ from handlers import client
 from config import dp
 import logging
 from aiogram.utils import executor
-from decouple import config
+
 client.register_handlers_client(dp)
 
 
-TOKEN=config('TOKEN')
-bot = Bot(TOKEN)
-dp = Dispatcher(bot=bot)
-ADMIN_ID = [661114436,]
+
+
+
+
 
 
 if __name__ == '__main__':
